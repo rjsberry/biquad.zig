@@ -1,6 +1,6 @@
 // The contents of this file is dual-licensed under the MIT or 0BSD license.
 
-//! Second order IIR filters.
+//! Biquad (second order IIR) filters.
 
 const std = @import("std");
 
@@ -10,6 +10,22 @@ const math = std.math;
 const mem = std.mem;
 
 /// Biquad -- a second order IIR filter.
+///
+/// Biquads work with any floating-point type `T`. You will also need to pick a
+/// section `S`:
+///
+/// * `DirectFormI` -- Stable to online coefficient recalculation but the most
+///   computationally expensive. You can safely update the cutoff frequency of
+///   the filter at runtime.
+///
+/// * `DirectFormII` -- Computationally simpler than `DirectFormI` but may be
+///   susceptible to overflow for large input values as gain is generally
+///   applied before attenuation.
+///
+/// * `TransposedDirectFormII` -- May produce some anomalies when retuned
+///   online but is computationally efficient and numerically "robust". This
+///   robustness comes from fact that attenuation of the input signal often
+///   occurs before gain.
 pub fn Biquad(
     comptime T: type,
     comptime S: *const fn (comptime type) type,

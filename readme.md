@@ -1,6 +1,6 @@
 # _biquad.zig_
 
-Second order IIR filters in Zig.
+Biquad (second order IIR) filters in Zig
 
 Dual licensed under the 0BSD and MIT licenses.
 
