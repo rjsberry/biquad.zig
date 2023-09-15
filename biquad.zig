@@ -88,14 +88,18 @@ pub fn Coefficients(comptime T: type) type {
         /// * `fs` -- sampling frequency (Hz)
         /// * `f0` -- cutoff frequency (Hz)
         /// * `q` -- quality factor
-        pub fn lowpassTwoPole(fs: T, f0: T, q: T) Self {
-            debug.assert(f0 < (2.0 * fs));
-            debug.assert(q >= 0.0);
+        pub fn lowpassTwoPole(args: struct {
+            fs: T,
+            f0: T,
+            q: T = math.sqrt1_2,
+        }) Self {
+            debug.assert(args.f0 < (2.0 * args.fs));
+            debug.assert(args.q >= 0.0);
 
-            const omega = 2.0 * math.pi * (f0 / fs);
+            const omega = 2.0 * math.pi * (args.f0 / args.fs);
             const omega_s = math.sin(omega);
             const omega_c = math.cos(omega);
-            const alpha = omega_s / (2.0 * q);
+            const alpha = omega_s / (2.0 * args.q);
 
             const a0 = 1.0 + alpha;
 
