@@ -1,6 +1,42 @@
 // The contents of this file is dual-licensed under the MIT or 0BSD license.
 
 //! Biquad (second order IIR) filters.
+//!
+//! `Biquad` works with any floating-point type `T`. You will also need to pick
+//! a section `S`:
+//!
+//! * `DirectFormI` -- Stable to online coefficient recalculation but the most
+//!   computationally expensive. You can safely update the cutoff frequency of
+//!   the filter at runtime.
+//!
+//! * `DirectFormII` -- Computationally simpler than `DirectFormI` but may be
+//!   susceptible to overflow for large input values as gain is generally
+//!   applied before attenuation.
+//!
+//! * `TransposedDirectFormII` -- May produce some anomalies when retuned
+//!   online but is computationally efficient and numerically "robust". This
+//!   robustness comes from fact that attenuation of the input signal often
+//!   occurs before gain.
+//!
+//! # Examples
+//!
+//!```zig
+//! const biquad = @import("biquad.zig");
+//!
+//! const Biquad = biquad.Biquad;
+//! const Coefficients = biquad.Coefficients;
+//! const DirectFormI = biquad.DirectFormI;
+//!
+//! const coeffs = Coefficients(f32).lowpassTwoPole(.{
+//!     .fs = 32_000, // sampling frequency (hz)
+//!     .f0 = 200, // cutoff frequency (hz)
+//!     .q = 0.707107 // quality factor, defaults to 1/sqrt(2)
+//! });
+//!
+//! var filter = Biquad(f32, DirectFormI).init(coeffs);
+//!
+//! const y = filter.filter(x); // filter an f32 value through the biquad
+//! ```
 
 const std = @import("std");
 
@@ -10,22 +46,6 @@ const math = std.math;
 const mem = std.mem;
 
 /// Biquad -- a second order IIR filter.
-///
-/// Biquads work with any floating-point type `T`. You will also need to pick a
-/// section `S`:
-///
-/// * `DirectFormI` -- Stable to online coefficient recalculation but the most
-///   computationally expensive. You can safely update the cutoff frequency of
-///   the filter at runtime.
-///
-/// * `DirectFormII` -- Computationally simpler than `DirectFormI` but may be
-///   susceptible to overflow for large input values as gain is generally
-///   applied before attenuation.
-///
-/// * `TransposedDirectFormII` -- May produce some anomalies when retuned
-///   online but is computationally efficient and numerically "robust". This
-///   robustness comes from fact that attenuation of the input signal often
-///   occurs before gain.
 pub fn Biquad(
     comptime T: type,
     comptime S: *const fn (comptime type) type,
@@ -127,7 +147,7 @@ pub fn DirectFormI(comptime T: type) type {
         y2: T = 0.0,
 
         /// Filters a value through the section.
-        pub fn filter(self: *Self, x: T, coeffs: *const Coefficients(T)) T {
+        fn filter(self: *Self, x: T, coeffs: *const Coefficients(T)) T {
             const y = coeffs.b0 * x +
                 coeffs.b1 * self.x1 +
                 coeffs.b2 * self.x2 -
@@ -155,7 +175,7 @@ pub fn DirectFormII(comptime T: type) type {
         v2: T = 0.0,
 
         /// Filters a value through the section.
-        pub fn filter(self: *Self, x: T, coeffs: *const Coefficients(T)) T {
+        fn filter(self: *Self, x: T, coeffs: *const Coefficients(T)) T {
             const w = x - coeffs.a1 * self.v1 - coeffs.a2 * self.v2;
             const y = coeffs.b0 * w + coeffs.b1 * self.v1 + coeffs.b2 * self.v2;
 
@@ -178,7 +198,7 @@ pub fn TransposedDirectFormII(comptime T: type) type {
         s2: T = 0.0,
 
         /// Filters a value through the section.
-        pub fn filter(self: *Self, x: T, coeffs: *const Coefficients(T)) T {
+        fn filter(self: *Self, x: T, coeffs: *const Coefficients(T)) T {
             const y = self.s1 + coeffs.b0 * x;
 
             self.s1 = self.s2 + coeffs.b1 * x - coeffs.a1 * y;
