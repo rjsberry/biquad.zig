@@ -14,7 +14,7 @@ const NUM_SAMPLES: usize = 2048;
 
 test "two-pole lowpass (direct form i) f32" {
     var t = Test(f32, biquad.DirectFormI).init(
-        biquad.Coefficients(f32).lowpassTwoPole(.{ .fs = FS, .f0 = 100 }),
+        biquad.Coefficients(f32).lowpass(.{ .fs = FS, .f0 = 100 }),
         testing.allocator,
     );
 
@@ -27,7 +27,7 @@ test "two-pole lowpass (direct form i) f32" {
 
 test "two-pole lowpass (direct form ii) f32" {
     var t = Test(f32, biquad.DirectFormII).init(
-        biquad.Coefficients(f32).lowpassTwoPole(.{ .fs = FS, .f0 = 100 }),
+        biquad.Coefficients(f32).lowpass(.{ .fs = FS, .f0 = 100 }),
         testing.allocator,
     );
 
@@ -40,7 +40,7 @@ test "two-pole lowpass (direct form ii) f32" {
 
 test "two-pole lowpass (transposed direct form ii) f32" {
     var t = Test(f32, biquad.TransposedDirectFormII).init(
-        biquad.Coefficients(f32).lowpassTwoPole(.{ .fs = FS, .f0 = 100 }),
+        biquad.Coefficients(f32).lowpass(.{ .fs = FS, .f0 = 100 }),
         testing.allocator,
     );
 

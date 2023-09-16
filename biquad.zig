@@ -27,7 +27,7 @@
 //! const Coefficients = biquad.Coefficients;
 //! const DirectFormI = biquad.DirectFormI;
 //!
-//! const coeffs = Coefficients(f32).lowpassTwoPole(.{
+//! const coeffs = Coefficients(f32).lowpass(.{
 //!     .fs = 32_000, // sampling frequency (hz)
 //!     .f0 = 200, // cutoff frequency (hz)
 //!     .q = 0.707107 // quality factor, defaults to 1/sqrt(2)
@@ -108,7 +108,7 @@ pub fn Coefficients(comptime T: type) type {
         /// * `fs` -- sampling frequency (Hz)
         /// * `f0` -- cutoff frequency (Hz)
         /// * `q` -- quality factor
-        pub fn lowpassTwoPole(args: struct {
+        pub fn lowpass(args: struct {
             fs: T,
             f0: T,
             q: T = math.sqrt1_2,

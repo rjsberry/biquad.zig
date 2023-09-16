@@ -13,7 +13,7 @@ const Biquad = biquad.Biquad;
 const Coefficients = biquad.Coefficients;
 const DirectFormI = biquad.DirectFormI;
 
-const coeffs = Coefficients(f32).lowpassTwoPole(.{
+const coeffs = Coefficients(f32).lowpass(.{
     .fs = 32_000, // sampling frequency (hz)
     .f0 = 200, // cutoff frequency (hz)
     .q = 0.707107 // quality factor, defaults to 1/sqrt(2)
